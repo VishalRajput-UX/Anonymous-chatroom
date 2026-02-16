@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chatroom</title>
+  <link rel="stylesheet" href="style1.css" />
+</head>
+
+<body class="home">
+
+  <div class="container">
+
+    <!-- BLUE BACK PANEL -->
+    <div class="info-box">
+      <h1>WELCOME 👋</h1>
+      <p>Welcome to the Chatroom</p>
+
+      <ul>
+        <li>✔ Be respectful</li>
+        <li>✔ No spamming</li>
+        <li>✔ No abusive language</li>
+        <li>✔ Have fun 😄</li>
+      </ul>
+    </div>
+
+    <!-- WHITE OVERLAY LOGIN CARD -->
+    <div class="login-box">
+      <h2>Join Chat</h2>
+
+      <input
+        id="username"
+        placeholder="Enter your username"
+        autocomplete="off"
+      />
+
+      <!-- 🔐 ADMIN PASSWORD (HIDDEN BY DEFAULT) -->
+      <input
+        id="adminPassword"
+        type="password"
+        placeholder="Admin password"
+        style="display:none; margin-top:10px;"
+      />
+
+      <p id="error" style="color:red; margin-top:10px;"></p>
+
+      <button onclick="joinChat()">Join Chat</button>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const usernameInput = document.getElementById("username");
+    const adminPasswordInput = document.getElementById("adminPassword");
+    const errorText = document.getElementById("error");
+
+    // Show password field ONLY if username is "admin"
+    usernameInput.addEventListener("input", () => {
+      const isAdmin =
+        usernameInput.value.trim().toLowerCase() === "admin";
+
+      adminPasswordInput.style.display = isAdmin ? "block" : "none";
+      errorText.innerText = "";
+    });
+
+    function joinChat() {
+      const username = usernameInput.value.trim();
+      const password = adminPasswordInput.value;
+
+      if (!username) return;
+
+      socket.emit(
+        "check-username",
+        { username, password },
+        (response) => {
+          if (!response.available) {
+            errorText.innerText =
+              response.message || "Username not allowed";
+            return;
+          }
+
+          // ✅ SAVE USERNAME
+          localStorage.setItem("username", username);
+
+          // 🔐 SAVE ADMIN TOKEN (CRITICAL)
+          if (response.adminToken) {
+            localStorage.setItem("adminToken", response.adminToken);
+          } else {
+            localStorage.removeItem("adminToken");
+          }
+
+          window.location = "chat.html";
+        }
+      );
+    }
+  </script>
+
+</body>
+</html>

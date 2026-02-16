@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chatroom</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+
+  <!-- 🌈 Animated Background -->
+  <div class="bg-gradient"></div>
+
+  <!-- 🌙 Theme Toggle -->
+  <button id="themeToggle" class="theme-toggle">🌙</button>
+
+  <div class="chat-app">
+
+    <!-- 📌 SIDEBAR -->
+    <aside class="sidebar">
+      <h2 class="logo">💬 Chatroom</h2>
+
+      <!-- 👥 Online Users -->
+      <div class="online-box">
+        <h4>Online</h4>
+        <ul id="userList"></ul>
+      </div>
+
+      <!-- 👑 ADMIN PANEL -->
+      <div id="adminPanel" class="admin-panel">
+        <h4>👑 Admin Dashboard</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminTable"></tbody>
+        </table>
+      </div>
+    </aside>
+
+    <!-- 💬 CHAT AREA -->
+    <main class="chat-area">
+
+      <!-- Messages -->
+      <div id="messages" class="messages"></div>
+
+      <!-- Typing Indicator -->
+      <div id="typingIndicator" class="typing-indicator"></div>
+
+      <!-- Input + Emoji -->
+      <div class="input-box">
+        <div class="emoji-bar">
+          <span onclick="react('❤️')">❤️</span>
+          <span onclick="react('😂')">😂</span>
+          <span onclick="react('🔥')">🔥</span>
+          <span onclick="react('👍')">👍</span>
+          <span onclick="react('😮')">😮</span>
+        </div>
+
+        <input
+          id="input"
+          placeholder="Type your message…"
+          autocomplete="off"
+        />
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- SOCKET.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

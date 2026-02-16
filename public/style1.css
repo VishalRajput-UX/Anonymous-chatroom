@@ -1,0 +1,165 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* BACKGROUND */
+.home {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(
+    -45deg,
+    #020617,
+    #0f172a,
+    #1e3a8a,
+    #2563eb,
+    #6366f1
+  );
+  background-size: 400% 400%;
+  animation: gradientBG 30s ease infinite;
+}
+.home::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("/public/noise.svg");
+  opacity: 0.07;
+  animation: grainMove 2s steps(2) infinite;
+}
+
+
+/* MAIN CONTAINER */
+.container {
+  position: relative;
+  width: 900px;
+  height: 500px;
+  z-index: 2;
+}
+
+/* BLUE INFO BOX (BACK) */
+.info-box {
+  position: absolute;
+  right: 0;
+  width: 650px;
+  height: 100%;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  border-radius: 20px;
+  padding: 60px 60px 60px 180px;
+  color: white;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+  animation: slideRight 1.6s ease;
+}
+
+.info-box h1 {
+  margin-bottom: 10px;
+}
+
+.info-box p {
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.info-box ul {
+  list-style: none;
+}
+
+.info-box li {
+  margin-bottom: 12px;
+}
+
+/* WHITE LOGIN BOX (OVERLAY) */
+.login-box {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 360px;
+  padding: 40px;
+  background: white;
+  border-radius: 20px;
+  z-index: 10;
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  animation: slideLeft 1.4s ease;
+}
+
+.login-box h2 {
+  margin-bottom: 25px;
+  color: #020617;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* BUTTON */
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  color: white;
+  font-size: 15px;
+  transition: 0.3s ease;
+}
+
+.login-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+}
+
+/* 🎬 ANIMATIONS */
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translate(-50px, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes grainMove {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 2%); }
+  50% { transform: translate(2%, -2%); }
+  75% { transform: translate(-1%, 1%); }
+  100% { transform: translate(0, 0); }
+}
