@@ -74,6 +74,13 @@
   margin-bottom: 12px;
 }
 
+.logo2{
+ position: relative;
+ width: 250px;
+ left: 70px;
+ 
+}
+
 /* WHITE LOGIN BOX (OVERLAY) */
 .login-box {
   position: absolute;
