@@ -1,42 +1,37 @@
 const socket = io();
 
-// ===============================
-// DOM ELEMENTS
-// ===============================
+/* ===============================
+   DOM ELEMENTS
+=============================== */
 const messages = document.getElementById("messages");
 const userList = document.getElementById("userList");
 const input = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
 const typingIndicator = document.getElementById("typingIndicator");
 
-// Admin elements
 const adminPanel = document.getElementById("adminPanel");
 const adminTable = document.getElementById("adminTable");
 
-// Theme toggle
 const themeToggle = document.getElementById("themeToggle");
 
-// ===============================
-// STORED SESSION DATA
-// ===============================
+/* ===============================
+   SESSION DATA
+=============================== */
 const username = localStorage.getItem("username");
 const adminToken = localStorage.getItem("adminToken");
 
-// 🚫 CLIENT GUARD
 if (!username) {
   window.location = "/";
 }
 
-// ===============================
-// JOIN CHAT (SECURE)
-// ===============================
-socket.emit("join", {
-  username,
-  adminToken,
-});
+/* ===============================
+   JOIN CHAT
+=============================== */
+socket.emit("join", { username, adminToken });
 
-// ===============================
-// THEME TOGGLE (PERSISTENT)
-// ===============================
+/* ===============================
+   THEME TOGGLE
+=============================== */
 if (localStorage.getItem("theme") === "light") {
   document.body.classList.add("light");
 }
@@ -51,9 +46,27 @@ if (themeToggle) {
   };
 }
 
-// ===============================
-// SEND MESSAGE + ADMIN COMMAND
-// ===============================
+/* ===============================
+   SEND MESSAGE FUNCTION
+=============================== */
+function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Admin announcement
+  if (text.startsWith("/announce ")) {
+    socket.emit("system-message", text.replace("/announce ", ""));
+    input.value = "";
+    return;
+  }
+
+  socket.emit("chat message", text);
+  input.value = "";
+}
+
+/* ===============================
+   INPUT EVENTS
+=============================== */
 let typingTimeout;
 
 input.addEventListener("input", () => {
@@ -66,60 +79,53 @@ input.addEventListener("input", () => {
 });
 
 input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && input.value.trim()) {
-    const text = input.value.trim();
-
-    // 📢 Admin announcement
-    if (text.startsWith("/announce ")) {
-      socket.emit("system-message", text.replace("/announce ", ""));
-      input.value = "";
-      return;
-    }
-
-    socket.emit("chat message", text);
-    input.value = "";
+  if (e.key === "Enter") {
+    sendMessage();
   }
 });
 
-// ===============================
-// RECEIVE CHAT MESSAGE
-// ===============================
+if (sendBtn) {
+  sendBtn.addEventListener("click", sendMessage);
+}
+
+/* ===============================
+   RECEIVE CHAT MESSAGE
+=============================== */
 socket.on("chat message", (data) => {
   const div = document.createElement("div");
+  div.className = "message";
+
   div.innerHTML = `
     <strong>${data.user}</strong>
     <small>${data.time}</small><br>
     ${data.message}
   `;
+
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 });
 
-// ===============================
-// SYSTEM MESSAGE
-// ===============================
+/* ===============================
+   SYSTEM MESSAGE
+=============================== */
 socket.on("system-message", (data) => {
   const div = document.createElement("div");
   div.className = "status";
-  div.style.background = "#111";
-  div.style.color = "#facc15";
-  div.style.padding = "8px";
-  div.style.margin = "6px 0";
   div.innerText = `📢 SYSTEM: ${data.message}`;
   messages.appendChild(div);
 });
 
-// ===============================
-// TYPING INDICATOR
-// ===============================
+/* ===============================
+   TYPING INDICATOR
+=============================== */
 socket.on("typing", ({ user, state }) => {
   if (!typingIndicator) return;
   typingIndicator.innerText = state ? `${user} is typing…` : "";
 });
 
-// ===============================
-// ONLINE USERS
-// ===============================
+/* ===============================
+   ONLINE USERS
+=============================== */
 socket.on("users", (users) => {
   userList.innerHTML = "";
   users.forEach((u) => {
@@ -129,9 +135,9 @@ socket.on("users", (users) => {
   });
 });
 
-// ===============================
-// EMOJI REACTIONS
-// ===============================
+/* ===============================
+   EMOJI REACTIONS
+=============================== */
 function react(emoji) {
   socket.emit("reaction", emoji);
 }
@@ -146,9 +152,9 @@ socket.on("reaction", (emoji) => {
   setTimeout(() => span.remove(), 2000);
 });
 
-// ===============================
-// ADMIN DASHBOARD (LIVE)
-// ===============================
+/* ===============================
+   ADMIN DASHBOARD
+=============================== */
 socket.emit("get-admin-data");
 
 socket.on("admin-data", (users) => {
@@ -182,9 +188,9 @@ socket.on("admin-data", (users) => {
   });
 });
 
-// ===============================
-// ADMIN ACTIONS
-// ===============================
+/* ===============================
+   ADMIN ACTIONS
+=============================== */
 function kickUser(socketId) {
   socket.emit("kick-user", socketId);
 }
@@ -199,9 +205,9 @@ function banUser(socketId) {
   }
 }
 
-// ===============================
-// ADMIN EFFECTS ON USERS
-// ===============================
+/* ===============================
+   ADMIN EFFECTS
+=============================== */
 socket.on("kicked", () => {
   alert("You were kicked by admin");
   localStorage.clear();
