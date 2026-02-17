@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chatroom</title>
+  <title>NSFW room</title>
+  <link rel="icon" type="image/png" href="./Logo - NSFW.png">
   <link rel="stylesheet" href="style.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Tint&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow&display=swap');
+</style>
 </head>
 
 <body>
@@ -19,17 +25,17 @@
 
     <!-- 📌 SIDEBAR -->
     <aside class="sidebar">
-      <h2 class="logo">💬 Chatroom</h2>
+      <h2 class="logo" style="font-family: 'Bungee Tint', sans-serif;">💬 NSFW rooms</h2>
 
       <!-- 👥 Online Users -->
       <div class="online-box">
-        <h4>Online</h4>
-        <ul id="userList"></ul>
+        <h4 style="  font-family: 'Limelight', sans-serif;">Online</h4>
+        <ul id="userList" style="  font-family: 'Jacques Francois Shadow', serif;"></ul>
       </div>
 
       <!-- 👑 ADMIN PANEL -->
       <div id="adminPanel" class="admin-panel">
-        <h4>👑 Admin Dashboard</h4>
+        <h4 style="font-family: 'Limelight', sans-serif;">👑 Admin Dashboard</h4>
         <table>
           <thead>
             <tr>
@@ -67,6 +73,9 @@
           placeholder="Type your message…"
           autocomplete="off"
         />
+        <button id="sendBtn" class="send-btn">
+      ➤
+    </button>
       </div>
 
     </main>
