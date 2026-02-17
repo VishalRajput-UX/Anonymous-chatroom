@@ -5,10 +5,14 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* BACKGROUND */
+/* ===============================
+   BACKGROUND
+=============================== */
 .home {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 40px 20px;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,41 +28,48 @@
   background-size: 400% 400%;
   animation: gradientBG 30s ease infinite;
 }
+
 .home::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: url("/public/noise.svg");
-  opacity: 0.07;
+  background-image: url("/noise.svg"); /* Make sure file exists */
+  opacity: 0.05;
   animation: grainMove 2s steps(2) infinite;
 }
 
-
-/* MAIN CONTAINER */
+/* ===============================
+   MAIN CONTAINER
+=============================== */
 .container {
   position: relative;
-  width: 900px;
-  height: 500px;
-  z-index: 2;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 520px;
 }
 
-/* BLUE INFO BOX (BACK) */
+/* ===============================
+   INFO BOX (RIGHT SIDE)
+=============================== */
 .info-box {
   position: absolute;
   right: 0;
-  width: 650px;
+  width: 70%;
+  min-width: 520px;
   height: 100%;
+
   background: linear-gradient(135deg, #1e3a8a, #2563eb);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 60px 60px 60px 180px;
   color: white;
+
   box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
   animation: slideRight 1.6s ease;
 }
 
 .info-box h1 {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .info-box p {
@@ -74,24 +85,21 @@
   margin-bottom: 12px;
 }
 
-.logo2{
- position: relative;
- width: 250px;
- left: 70px;
- 
-}
-
-/* WHITE LOGIN BOX (OVERLAY) */
+/* ===============================
+   LOGIN BOX (LEFT OVERLAY)
+=============================== */
 .login-box {
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
 
-  width: 360px;
+  width: 400px;
+  max-width: 90%;
+
   padding: 40px;
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   z-index: 10;
 
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
@@ -106,7 +114,7 @@
 .login-box input {
   width: 100%;
   padding: 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid #cbd5f5;
   margin-bottom: 20px;
   font-size: 14px;
@@ -121,7 +129,7 @@
 .login-box button {
   width: 100%;
   padding: 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   background: linear-gradient(135deg, #6366f1, #3b82f6);
@@ -135,7 +143,9 @@
   box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
 }
 
-/* 🎬 ANIMATIONS */
+/* ===============================
+   ANIMATIONS
+=============================== */
 @keyframes slideLeft {
   from {
     opacity: 0;
@@ -157,6 +167,7 @@
     transform: translateX(0);
   }
 }
+
 @keyframes gradientBG {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -169,4 +180,67 @@
   50% { transform: translate(2%, -2%); }
   75% { transform: translate(-1%, 1%); }
   100% { transform: translate(0, 0); }
+}
+
+/* ===============================
+   RESPONSIVE BREAKPOINTS
+=============================== */
+
+/* Tablet */
+@media (max-width: 992px) {
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .info-box {
+    position: relative;
+    width: 70%;
+    min-width: unset;
+    padding: 40px;
+    text-align: start;
+  }
+
+  .login-box {
+    position: relative;
+  
+  left: 0;
+  top: 50%;
+    transform: none;
+    width: 100%;
+    max-width: 450px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+
+  .home {
+    padding: 20px;
+  }
+
+  .info-box {
+    padding: 30px 20px;
+  }
+
+  .login-box {
+    padding: 30px 20px;
+  }
+
+  .info-box h1 {
+    font-size: 22px;
+  }
+
+  .login-box h2 {
+    font-size: 20px;
+  }
+}
+
+.rule{
+    font-family: "Frijole", system-ui;
+  font-weight: 400;
+  font-style: normal;
 }
