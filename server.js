@@ -206,7 +206,7 @@ io.on("connection", (socket) => {
     const newMessage = new Message({
       user: user.username,
       message,
-      time: new Date().toLocaleTimeString(),
+     time: Date.now(),
     });
 
     await newMessage.save();
@@ -281,7 +281,7 @@ io.on("connection", (socket) => {
 
     io.emit("system-message", {
       message: text,
-      time: new Date().toLocaleTimeString(),
+      time: Date.now(),
     });
   });
 
