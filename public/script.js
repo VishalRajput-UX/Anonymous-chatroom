@@ -53,7 +53,6 @@ function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  // Admin announcement
   if (text.startsWith("/announce ")) {
     socket.emit("system-message", text.replace("/announce ", ""));
     input.value = "";
@@ -95,9 +94,15 @@ socket.on("chat message", (data) => {
   const div = document.createElement("div");
   div.className = "message";
 
+  // Convert timestamp to user's local time
+  const localTime = new Date(data.time).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   div.innerHTML = `
     <strong>${data.user}</strong>
-    <small>${data.time}</small><br>
+    <small>${localTime}</small><br>
     ${data.message}
   `;
 
@@ -111,7 +116,17 @@ socket.on("chat message", (data) => {
 socket.on("system-message", (data) => {
   const div = document.createElement("div");
   div.className = "status";
-  div.innerText = `📢 SYSTEM: ${data.message}`;
+
+  const localTime = new Date(data.time).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  div.innerHTML = `
+    <small>${localTime}</small><br>
+    📢 SYSTEM: ${data.message}
+  `;
+
   messages.appendChild(div);
 });
 
