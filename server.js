@@ -16,22 +16,25 @@ app.use(express.static("public"));
    DATABASE CONNECTION
 ====================================================== */
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.error("❌ MongoDB Error:", err));
+  .catch((err) => console.error("❌ MongoDB Error:", err));
 
 /* ======================================================
    MODELS
 ====================================================== */
 
-const messageSchema = new mongoose.Schema({
-  user: String,
-  message: String,
-  time: String,
-});
+const messageSchema = new mongoose.Schema(
+  {
+    user: { type: String, required: true },
+    message: { type: String, required: true },
+  },
+  { timestamps: true } // 👈 automatically adds createdAt
+);
 
 const banSchema = new mongoose.Schema({
-  username: String,
+  username: { type: String, required: true },
 });
 
 const Message = mongoose.model("Message", messageSchema);
@@ -55,12 +58,12 @@ const RESERVED_USERNAMES = [
    STATE (In-Memory)
 ====================================================== */
 
-const users = {};
+const users = {}; // socket.id -> { username, role, joinedAt }
 const adminTokens = new Set();
 const mutedUsers = new Set();
 
 /* ======================================================
-   UTILITIES
+   HELPERS
 ====================================================== */
 
 const normalize = (name) => name.trim().toLowerCase();
@@ -68,9 +71,8 @@ const normalize = (name) => name.trim().toLowerCase();
 const getOnlineUsernames = () =>
   Object.values(users).map((u) => u.username);
 
-function isAdmin(socketId) {
-  return users[socketId]?.role === "admin";
-}
+const isAdmin = (socketId) =>
+  users[socketId]?.role === "admin";
 
 function emitAdminUpdate() {
   const adminData = Object.entries(users).map(
@@ -108,6 +110,7 @@ io.on("connection", (socket) => {
 
       const cleanName = normalize(username);
 
+      // Check ban
       const banned = await Ban.findOne({ username: cleanName });
       if (banned) {
         return callback({
@@ -116,7 +119,7 @@ io.on("connection", (socket) => {
         });
       }
 
-      // ADMIN LOGIN
+      // Admin login
       if (cleanName === "admin") {
         if (password !== ADMIN_PASSWORD) {
           return callback({
@@ -134,6 +137,7 @@ io.on("connection", (socket) => {
         });
       }
 
+      // Reserved usernames
       if (RESERVED_USERNAMES.includes(cleanName)) {
         return callback({
           available: false,
@@ -141,6 +145,7 @@ io.on("connection", (socket) => {
         });
       }
 
+      // Already online
       const alreadyOnline = Object.values(users).some(
         (u) => u.username === cleanName
       );
@@ -163,59 +168,68 @@ io.on("connection", (socket) => {
      JOIN CHAT
   =============================== */
   socket.on("join", async (data) => {
-    const { username, adminToken } = data || {};
-    if (!username) return;
+    try {
+      const { username, adminToken } = data || {};
+      if (!username) return;
 
-    const cleanName = normalize(username);
+      const cleanName = normalize(username);
 
-    const banned = await Ban.findOne({ username: cleanName });
-    if (banned) return;
+      const banned = await Ban.findOne({ username: cleanName });
+      if (banned) return;
 
-    let role = "user";
-    if (cleanName === "admin" && adminTokens.has(adminToken)) {
-      role = "admin";
+      let role = "user";
+      if (cleanName === "admin" && adminTokens.has(adminToken)) {
+        role = "admin";
+      }
+
+      users[socket.id] = {
+        username: cleanName,
+        role,
+        joinedAt: new Date().toLocaleTimeString(),
+      };
+
+      // Load last 50 messages
+      const oldMessages = await Message.find()
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      socket.emit("load-messages", oldMessages.reverse());
+
+      socket.broadcast.emit("status", {
+        message: `${cleanName} joined the chat`,
+        time: Date.now(),
+      });
+
+      io.emit("users", getOnlineUsernames());
+      emitAdminUpdate();
+    } catch (err) {
+      console.error(err);
     }
-
-    users[socket.id] = {
-      username: cleanName,
-      role,
-      joinedAt: new Date().toLocaleTimeString(),
-    };
-
-    // 🔥 LOAD LAST 50 MESSAGES
-    const oldMessages = await Message.find().sort({ _id: -1 }).limit(50);
-    socket.emit("load-messages", oldMessages.reverse());
-
-    socket.broadcast.emit("status", {
-      message: `${cleanName} joined the chat`,
-    });
-
-    io.emit("users", getOnlineUsernames());
-    emitAdminUpdate();
   });
 
   /* ===============================
-     CHAT MESSAGE (SAVE TO DB)
+     CHAT MESSAGE
   =============================== */
-  socket.on("chat message", async (message) => {
-    if (!users[socket.id]) return;
-    if (mutedUsers.has(socket.id)) return;
+  socket.on("chat message", async (text) => {
+    try {
+      if (!users[socket.id]) return;
+      if (mutedUsers.has(socket.id)) return;
 
-    const user = users[socket.id];
+      const user = users[socket.id];
 
-    const newMessage = new Message({
-      user: user.username,
-      message,
-     time: Date.now(),
-    });
+      const newMessage = await Message.create({
+        user: user.username,
+        message: text,
+      });
 
-    await newMessage.save();
-
-    io.emit("chat message", {
-      user: user.username,
-      message,
-      time: newMessage.time,
-    });
+      io.emit("chat message", {
+        user: user.username,
+        message: text,
+        time: newMessage.createdAt, // 👈 correct timestamp
+      });
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   /* ===============================
